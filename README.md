@@ -147,6 +147,6 @@ sports-app/
 This project is licensed under the MIT License.
 本项目采用 MIT 许可证。
 
-# Triggering CI/CD workflow for testing
+# Triggering CI/CD workflow for master branch
 
 # Another trigger for CI/CD workflow
