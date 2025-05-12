@@ -1,0 +1,19 @@
+<svg width="35" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="lg-light-col" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#60A5FA"/>
+            <stop offset="100%" stop-color="#93C5FD"/>
+        </linearGradient>
+    </defs>
+    <text
+            x="7" y="45"
+            font-family="Segoe UI, Arial, sans-serif"
+            font-size="48"
+            font-weight="bold"
+            fill="url(#lg-light-col)"
+            stroke="#1E40AF"
+            stroke-width="1"
+    >
+        R
+    </text>
+</svg>

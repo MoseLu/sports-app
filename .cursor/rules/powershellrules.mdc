@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+在Powershell终端中，不要使用&&连接命令，而应该使用全角分号

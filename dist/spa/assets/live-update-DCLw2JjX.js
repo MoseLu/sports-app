@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/web-BOGCaiwX.js","assets/index-QLc2gC4p.js","assets/index-C7F-T54B.css"])))=>i.map(i=>d[i]);
+import{b as a}from"./index-3fevySbJ.js";import{j as o,_ as i}from"./index-QLc2gC4p.js";const t=o("LiveUpdate",{web:()=>i(()=>import("./web-BOGCaiwX.js"),__vite__mapDeps([0,1,2])).then(e=>new e.LiveUpdateWeb)}),n=a(async()=>{try{await t.sync({channel:"production"}),await t.ready()}catch(e){console.error("[LiveUpdate] failed:",e)}});export{n as default};

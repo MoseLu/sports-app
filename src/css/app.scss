@@ -1,0 +1,26 @@
+// app global css in SCSS form
+
+.success-notify,
+.warning-notify,
+.error-notify {
+  min-height: 32px !important;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  margin: 8px auto !important;
+  max-width: 400px !important;
+}
+
+.success-notify {
+  background: #4caf50 !important;
+}
+
+.warning-notify {
+  background: #ffc107 !important;
+}
+
+.error-notify {
+  background: #f44336 !important;
+}

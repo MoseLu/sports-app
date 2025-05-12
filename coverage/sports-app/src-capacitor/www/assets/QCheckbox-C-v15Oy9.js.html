@@ -1,0 +1,88 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for sports-app/src-capacitor/www/assets/QCheckbox-C-v15Oy9.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">sports-app/src-capacitor/www/assets</a> QCheckbox-C-v15Oy9.js</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import{r as _,c as n,h as u,u as P,g as Q,l as j,aV as i,ac as z,S as N,p as V,k as R,Q as D}from"./index-DeRF4HPo.js";import{u as M,a as H}from"./QCard-CJ7eyBD_.js";import{f as K,m as L}from"./QForm-CxZGyJKj.js";function G(a,d){const e=_(null),c=n(()=&gt;a.disable===!0?null:u("span",{ref:e,class:"no-outline",tabindex:-1}));function f(l){const o=d.value;(l==null?void 0:l.qAvoidFocus)!==!0&amp;&amp;((l==null?void 0:l.type.indexOf("key"))===0?document.activeElement!==o&amp;&amp;(o==null?void 0:o.contains(document.activeElement))===!0&amp;&amp;o.focus():e.value!==null&amp;&amp;(l===void 0||(o==null?void 0:o.contains(l.target))===!0)&amp;&amp;e.value.focus())}return{refocusTargetEl:c,refocusTarget:f}}const J={xs:30,sm:35,md:40,lg:50,xl:60},U={...M,...P,...K,modelValue:{required:!0,default:null},val:{},trueValue:{default:!0},falseValue:{default:!1},indeterminateValue:{default:null},checkedIcon:String,uncheckedIcon:String,indeterminateIcon:String,toggleOrder:{type:String,validator:a=&gt;a==="tf"||a==="ft"},toggleIndeterminate:Boolean,label:String,leftLabel:Boolean,color:String,keepColor:Boolean,dense:Boolean,disable:Boolean,tabindex:[String,Number]},W=["update:modelValue"];function X(a,d){const{props:e,slots:c,emit:f,proxy:l}=Q(),{$q:o}=l,q=H(e,o),k=_(null),{refocusTargetEl:h,refocusTarget:I}=G(e,k),C=j(e,J),v=n(()=&gt;e.val!==void 0&amp;&amp;Array.isArray(e.modelValue)),b=n(()=&gt;{const t=i(e.val);return v.value===!0?e.modelValue.findIndex(s=&gt;i(s)===t):-1}),r=n(()=&gt;v.value===!0?b.value!==-1:i(e.modelValue)===i(e.trueValue)),m=n(()=&gt;v.value===!0?b.value===-1:i(e.modelValue)===i(e.falseValue)),p=n(()=&gt;r.value===!1&amp;&amp;m.value===!1),y=n(()=&gt;e.disable===!0?-1:e.tabindex||0),S=n(()=&gt;`q-${a} cursor-pointer no-outline row inline no-wrap items-center`+(e.disable===!0?" disabled":"")+(q.value===!0?` q-${a}--dark`:"")+(e.dense===!0?` q-${a}--dense`:"")+(e.leftLabel===!0?" reverse":"")),$=n(()=&gt;{const t=r.value===!0?"truthy":m.value===!0?"falsy":"indet",s=e.color!==void 0&amp;&amp;(e.keepColor===!0||m.value!==!0)?` text-${e.color}`:"";return`q-${a}__inner relative-position non-selectable q-${a}__inner--${t}${s}`}),B=n(()=&gt;{const t={type:"checkbox"};return e.name!==void 0&amp;&amp;Object.assign(t,{".checked":r.value,"^checked":r.value===!0?"checked":void 0,name:e.name,value:v.value===!0?e.val:e.trueValue}),t}),O=L(B),w=n(()=&gt;{const t={tabindex:y.value,role:"checkbox","aria-label":e.label,"aria-checked":p.value===!0?"mixed":r.value===!0?"true":"false"};return e.disable===!0&amp;&amp;(t["aria-disabled"]="true"),t});function g(t){t!==void 0&amp;&amp;(V(t),I(t)),e.disable!==!0&amp;&amp;f("update:modelValue",A(),t)}function A(){if(v.value===!0){if(r.value===!0){const t=e.modelValue.slice();return t.splice(b.value,1),t}return e.modelValue.concat([e.val])}if(r.value===!0){if(e.toggleOrder!=="ft"||e.toggleIndeterminate===!1)return e.falseValue}else if(m.value===!0){if(e.toggleOrder==="ft"||e.toggleIndeterminate===!1)return e.trueValue}else return e.toggleOrder!=="ft"?e.trueValue:e.falseValue;return e.indeterminateValue}function T(t){(t.keyCode===13||t.keyCode===32)&amp;&amp;V(t)}function E(t){(t.keyCode===13||t.keyCode===32)&amp;&amp;g(t)}const F=d(r,p);return Object.assign(l,{toggle:g}),()=&gt;{const t=F();e.disable!==!0&amp;&amp;O(t,"unshift",` q-${a}__native absolute q-ma-none q-pa-none`);const s=[u("div",{class:$.value,style:C.value,"aria-hidden":"true"},t)];h.value!==null&amp;&amp;s.push(h.value);const x=e.label!==void 0?z(c.default,[e.label]):N(c.default);return x!==</span></span>void 0&amp;&amp;s.push(u("div",{class:`q-${a}__label q-anchor--skip`},x)),u("div",{ref:k,class:S.value,...w.value,onClick:g,onKeydown:T,onKeyup:E},s)}}const Y=()=&gt;u("div",{key:"svg",class:"q-checkbox__bg absolute"},[u("svg",{class:"q-checkbox__svg fit absolute-full",viewBox:"0 0 24 24"},[u("path",{class:"q-checkbox__truthy",fill:"none",d:"M1.73,12.91 8.1,19.28 22.79,4.59"}),u("path",{class:"q-checkbox__indet",d:"M4,14H20V10H4"})])]),ae=R({name:"QCheckbox",props:U,emits:W,setup(a){const d=Y();function e(c,f){const l=n(()=&gt;(c.value===!0?a.checkedIcon:f.value===!0?a.indeterminateIcon:a.uncheckedIcon)||null);return()=&gt;l.value!==null?[u("div",{key:"icon",class:"q-checkbox__icon-container absolute-full flex flex-center no-wrap"},[u(D,{class:"q-checkbox__icon",name:l.value})])]:[d]}return X("checkbox",e)}});export{ae as Q};</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-05-12T06:36:33.535Z
+            </div>
+        <script src="../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
+    </body>
+</html>
+    

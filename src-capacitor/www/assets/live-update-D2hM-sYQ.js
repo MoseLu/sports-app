@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["./web-BLnJsalT.js","./index-DeRF4HPo.js","./index-Pd9-SGLM.css"])))=>i.map(i=>d[i]);
+import{b as a}from"./index-3fevySbJ.js";import{j as o,_ as r}from"./index-DeRF4HPo.js";const t=o("LiveUpdate",{web:()=>r(()=>import("./web-BLnJsalT.js"),__vite__mapDeps([0,1,2]),import.meta.url).then(e=>new e.LiveUpdateWeb)}),n=a(async()=>{try{await t.sync({channel:"production"}),await t.ready()}catch(e){console.error("[LiveUpdate] failed:",e)}});export{n as default};

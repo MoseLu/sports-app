@@ -1,0 +1,88 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for sports-app/src-capacitor/www/assets/LoginPage-BzSeBdAj.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">sports-app/src-capacitor/www/assets</a> LoginPage-BzSeBdAj.js</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/1</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import{d as w,aL as x,c as u,aG as I,r as i,o as Q,b as y,ag as V,ah as U,ai as a,f as s,aH as c,aR as q,aS as k,aj as l,Q as p,aw as m,aM as h,aT as L,al as M}from"./index-DeRF4HPo.js";import{Q as C,l as g}from"./QForm-CxZGyJKj.js";import{Q as B}from"./QCheckbox-C-v15Oy9.js";import{Q as R,b as j}from"./QCard-CJ7eyBD_.js";const A={class:"login-page"},N={class:"login-container"},P={class:"login-content"},D={class:"login-header"},E=["src"],F={class:"row justify-between items-center q-mt-md"},G={class:"text-center q-mt-md"},H=w({__name:"LoginPage",setup(T){const v=L(),d=x(),f=I(),b=u(()=&gt;f.dark.isActive),_=u(()=&gt;d.isLoading),r=i(localStorage.getItem("rememberMe")==="true"),t=i({username:"",password:""});Q(()=&gt;{const n=localStorage.getItem("rememberedUsername");n&amp;&amp;(t.value.username=n)}),y(()=&gt;{t.value.username&amp;&amp;localStorage.removeItem("rememberedUsername")});const S=async()=&gt;{try{await d.login({username:t.value.username,password:t.value.password}),r.value?(localStorage.setItem("rememberMe","true"),localStorage.setItem("rememberedUsername",t.value.username)):(localStorage.removeItem("rememberMe"),localStorage.removeItem("rememberedUsername")),h("登录成功"),await v.push("/dashboard")}catch{localStorage.removeItem("token")}};return(n,e)=&gt;(U(),V("div",A,[a("div",N,[a("div",P,[a("div",D,[a("img",{src:b.value?c(q):c(k),alt:"Re Sports",class:"logo"},null,8,E),e[3]||(e[3]=a("h1",{class:"text-h4 q-mt-md"},"欢迎回来",-1)),e[4]||(e[4]=a("p",{class:"text-subtitle1 q-mt-sm text-grey-7"},"请登录您的账号",-1))]),s(R,{class:"login-card q-mt-lg"},{default:l(()=&gt;[s(j,null,{default:l(()=&gt;[s(C,{onSubmit:S,class:"q-gutter-md"},{default:l(()=&gt;[s(g,{modelValue:t.value.username,"onUpdate:modelValue":e[0]||(e[0]=o=&gt;t.value.username=o),label:"用户名",rules:[o=&gt;!!o||"请输入用户名"],outlined:"",class:"input-field"},{prepend:l(()=&gt;[s(p,{name:"person"})]),_:1},8,["mod</span></span>elValue","rules"]),s(g,{modelValue:t.value.password,"onUpdate:modelValue":e[1]||(e[1]=o=&gt;t.value.password=o),label:"密码",type:"password",rules:[o=&gt;!!o||"请输入密码"],outlined:"",class:"input-field"},{prepend:l(()=&gt;[s(p,{name:"lock"})]),_:1},8,["modelValue","rules"]),a("div",F,[s(B,{modelValue:r.value,"onUpdate:modelValue":e[2]||(e[2]=o=&gt;r.value=o),label:"记住我"},null,8,["modelValue"]),s(m,{flat:"",dense:"",label:"忘记密码？",to:"/reset-password",class:"text-primary"})]),s(m,{label:"登录",type:"submit",color:"primary",class:"full-width q-mt-lg login-btn",loading:_.value},null,8,["loading"]),a("div",G,[e[5]||(e[5]=a("span",{class:"text-grey-7"},"还没有账号？",-1)),s(m,{flat:"",dense:"",label:"立即注册",to:"/register",class:"text-primary"})])]),_:1})]),_:1})]),_:1}),e[6]||(e[6]=a("div",{class:"login-footer q-mt-xl"},[a("p",{class:"text-caption text-grey-7"},"© 2025 Re Sports. All rights reserved.")],-1))])])]))}}),O=M(H,[["__scopeId","data-v-3c5a86a9"]]);export{O as default};</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-05-12T06:36:33.535Z
+            </div>
+        <script src="../../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
+    </body>
+</html>
+    
