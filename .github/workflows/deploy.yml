@@ -3,40 +3,50 @@ name: CI/CD 后端部署
 on:
   push:
     branches:
-      - master # 推送到 master 分支时触发
+      - master     # 改为 master 分支触发
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取代码
+      # 1. Checkout 代码
       - name: Checkout 代码
         uses: actions/checkout@v3
 
-      # 2. 设置 Go 环境
+      # 2. 缓存 Go modules（假设 go.mod/go.sum 在 backend 目录下）
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # 3. 设置 Go 环境
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.23'
+          go-version: '1.23.4'  # 改为你项目使用的 Go 版本
 
-      # 3. 编译二进制
+      # 4. 在 backend 目录下编译二进制
       - name: Build sports-app-linux
-        run: |
-          cd backend
-          go build -o sports-app-linux
+        working-directory: backend
+        run: go build -o sports-app-linux
 
-      # 4. 上传二进制到服务器
+      # 5. 上传二进制到服务器
       - name: 上传二进制
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: 'backend/sports-app-linux'
-          target: '/www/wwwroot/redamancy/backend/'
+          source: "backend/sports-app-linux"
+          target: "/www/wwwroot/redamancy/backend/"
 
-      # 5. 在服务器上生成 .env 文件，注入 OSS 密钥
+      # 6. 在服务器上写入 .env（注入 OSS 密钥）
       - name: 上传 .env 到服务器
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -51,7 +61,7 @@ jobs:
             OSS_BUCKET=sports-app-images
             EOF
 
-      # 6. 重启后端服务（systemd）
+      # 7. 重启 systemd 服务
       - name: 重启 systemd 服务
         uses: appleboy/ssh-action@v0.1.7
         with:
