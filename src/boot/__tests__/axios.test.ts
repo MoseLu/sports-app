@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { Notify } from 'quasar';
 import { useUserStore } from '../../stores/user';
 import { api } from './axios.mock';
@@ -59,6 +59,20 @@ const mockApp = {
   },
 };
 
+interface User {
+  id: number;
+  [key: string]: any;
+}
+
+interface UserStore {
+  _token: string | null;
+  _user: User | null;
+  setToken(val: string | null): void;
+  getToken(): string | null;
+  setUser(val: User | null): void;
+  getUser(): User | null;
+}
+
 describe('Axios Configuration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -70,41 +84,40 @@ describe('Axios Configuration', () => {
       const token = 'test-token';
       localStorageMock.getItem.mockReturnValue(token);
 
-      // 直接测试拦截器功能
-      const config = { headers: {} };
-      const requestFn = (config) => {
+      const config: AxiosRequestConfig = { headers: {} };
+      const requestFn = (config: AxiosRequestConfig) => {
         const token = localStorage.getItem('token');
         if (token) {
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       };
 
       const result = requestFn(config);
-      expect(result.headers.Authorization).toBe(`Bearer ${token}`);
+      expect(result.headers?.Authorization).toBe(`Bearer ${token}`);
     });
 
     it('should not add token to request headers when token does not exist', () => {
       localStorageMock.getItem.mockReturnValue(null);
 
-      // 直接测试拦截器功能
-      const config = { headers: {} };
-      const requestFn = (config) => {
+      const config: AxiosRequestConfig = { headers: {} };
+      const requestFn = (config: AxiosRequestConfig) => {
         const token = localStorage.getItem('token');
         if (token) {
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       };
 
       const result = requestFn(config);
-      expect(result.headers.Authorization).toBeUndefined();
+      expect(result.headers?.Authorization).toBeUndefined();
     });
 
     it('should handle request error', async () => {
-      // 直接测试拦截器功能
       const error = new Error('Request error');
-      const errorFn = (err) => Promise.reject(new Error(err.message || '请求配置错误'));
+      const errorFn = (err: Error) => Promise.reject(new Error(err.message || '请求配置错误'));
 
       await expect(errorFn(error)).rejects.toThrow(/Request error/);
     });
@@ -115,35 +128,42 @@ describe('Axios Configuration', () => {
       // Mock useUserStore
       vi.mock('../../stores/user', () => ({
         useUserStore: vi.fn(() => ({
-          token: 'test-token',
-          user: { id: 1 },
-          set token(val) {
+          _token: 'test-token',
+          _user: { id: 1 },
+          setToken(val: string | null) {
             this._token = val;
           },
-          get token() {
+          getToken() {
             return this._token;
           },
-          set user(val) {
+          setUser(val: User | null) {
             this._user = val;
           },
-          get user() {
+          getUser() {
             return this._user;
           },
         })),
       }));
 
-      // 直接测试拦截器功能
-      const error = {
+      const error: AxiosError = {
         response: {
           status: 401,
+          data: {},
+          statusText: '',
+          headers: {},
+          config: {} as AxiosRequestConfig,
         },
         config: {
           url: '/api/test',
           method: 'GET',
-        },
+        } as AxiosRequestConfig,
+        isAxiosError: true,
+        toJSON: () => ({}),
+        name: '',
+        message: '',
       };
 
-      const errorFn = (error) => {
+      const errorFn = (error: AxiosError) => {
         const status = error.response?.status;
 
         if (status === 401) {
@@ -159,18 +179,25 @@ describe('Axios Configuration', () => {
     });
 
     it('should handle 404 not found error', async () => {
-      // 直接测试拦截器功能
-      const error = {
+      const error: AxiosError = {
         response: {
           status: 404,
+          data: {},
+          statusText: '',
+          headers: {},
+          config: {} as AxiosRequestConfig,
         },
         config: {
           url: '/api/test',
           method: 'GET',
-        },
+        } as AxiosRequestConfig,
+        isAxiosError: true,
+        toJSON: () => ({}),
+        name: '',
+        message: '',
       };
 
-      const errorFn = (error) => {
+      const errorFn = (error: AxiosError) => {
         const status = error.response?.status;
 
         if (status === 404) {
@@ -184,21 +211,23 @@ describe('Axios Configuration', () => {
     });
 
     it('should handle timeout error', async () => {
-      // 直接测试拦截器功能
-      const error = {
+      const error: AxiosError = {
         code: 'ECONNABORTED',
         message: 'timeout',
         config: {
           url: '/api/test',
           method: 'GET',
-        },
+        } as AxiosRequestConfig,
+        isAxiosError: true,
+        toJSON: () => ({}),
+        name: '',
+        response: undefined,
       };
 
-      const errorFn = (error) => {
+      const errorFn = (error: AxiosError) => {
         if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
           return Promise.reject(new Error('网络连接超时'));
         }
-
         return Promise.reject(new Error('其他错误'));
       };
 
