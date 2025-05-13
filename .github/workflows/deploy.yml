@@ -38,7 +38,7 @@ jobs:
 
       # 5. 在服务器上生成 .env 文件，注入 OSS 密钥
       - name: 上传 .env 到服务器
-        uses: appleboy/ssh-action@v1.7.4
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
