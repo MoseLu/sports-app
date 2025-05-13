@@ -28,27 +28,28 @@ jobs:
           go mod download
           go build -o sports-app-linux
 
-      # 4. 删除 /root 下旧二进制
-      - name: 删除 /root 旧二进制
+      # 4. 删除 /root/backend 下旧包
+      - name: 删除 /root/backend 旧包
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            rm -f /root/sports-app-linux
+            mkdir -p /root/backend
+            rm -f /root/backend/sports-app-linux.tar.gz
 
-      # 5. 上传新二进制到 /root
-      - name: 上传二进制到 /root
+      # 5. 上传包到 /root/backend
+      - name: 上传包到 /root/backend
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "backend/sports-app-linux"
-          target: "/root/"
+          source: "sports-app-linux.tar.gz"   # 工作区根目录下的包
+          target: "/root/backend/"
 
-      # 6. 部署并重启服务（无需 systemd，直接杀进程并用 nohup 启动）
+      # 6. 部署：解包→覆盖→注 env→启动
       - name: 部署并重启服务
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -56,14 +57,17 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 删除旧二进制
-            rm -f /www/wwwroot/redamancy/backend/sports-app-linux
+            # 1. 解压到 /root/backend
+            tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
+            # 2. 删除解压后的 tar 包
+            rm /root/backend/sports-app-linux.tar.gz
 
-            # 移动新二进制
-            mv -f /root/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
+            # 3. 删除旧二进制并移动新二进制到部署目录
+            rm -f /www/wwwroot/redamancy/backend/sports-app-linux
+            mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 注入最新 .env
+            # 4. 注入最新 .env
             cat > /www/wwwroot/redamancy/backend/.env << 'EOF'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
@@ -71,13 +75,12 @@ jobs:
             OSS_BUCKET=sports-app-images
             EOF
 
-            # 确保日志目录存在
+            # 5. 确保日志目录存在
             mkdir -p /www/wwwroot/redamancy/backend/logs
 
-            # 停掉旧进程
+            # 6. 停掉旧进程并后台启动新进程
             pkill -f sports-app-linux || true
-
-            # 后台启动新进程并将日志写入 logs/app.log
             nohup /www/wwwroot/redamancy/backend/sports-app-linux \
               > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 &
+
 
