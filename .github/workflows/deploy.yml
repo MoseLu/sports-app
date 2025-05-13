@@ -29,8 +29,8 @@ jobs:
           go build -o sports-app-linux
           tar czf ../sports-app-linux.tar.gz sports-app-linux
 
-      # 4. 删除 /root/backend 下的旧包
-      - name: 删除旧包
+      # 4. 清理 /root/backend 下的旧包
+      - name: 清理旧包
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -40,8 +40,8 @@ jobs:
             mkdir -p /root/backend
             rm -f /root/backend/sports-app-linux.tar.gz
 
-      # 5. 上传打好的包到 /root/backend
-      - name: 上传包
+      # 5. 上传新包到 /root/backend
+      - name: 上传包到 /root/backend
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -50,7 +50,7 @@ jobs:
           source: "sports-app-linux.tar.gz"
           target: "/root/backend/"
 
-      # 6. 部署：解压→覆盖→注环境变量→启动
+      # 6. 部署覆盖并后台启动（脱离 SSH 会话）
       - name: 部署并重启服务
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -58,11 +58,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            set -e
+
             # 解压到 /root/backend
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             rm /root/backend/sports-app-linux.tar.gz
 
-            # 覆盖到部署目录
+            # 覆盖旧二进制
             rm -f /www/wwwroot/redamancy/backend/sports-app-linux
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
@@ -78,7 +80,12 @@ jobs:
             # 确保日志目录存在
             mkdir -p /www/wwwroot/redamancy/backend/logs
 
-            # 停掉旧进程并后台启动新进程
+            # 停掉旧进程
             pkill -f sports-app-linux || true
+
+            # 后台启动新进程，并彻底脱离当前 shell
             nohup /www/wwwroot/redamancy/backend/sports-app-linux \
-              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 &
+              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null &
+
+            # 确保脚本以 0 退出
+            exit 0
