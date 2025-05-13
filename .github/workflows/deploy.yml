@@ -3,7 +3,7 @@ name: CI/CD 后端部署
 on:
   push:
     branches:
-      - master     # 触发分支
+      - master
 
 jobs:
   build-and-deploy:
@@ -14,33 +14,22 @@ jobs:
       - name: Checkout 代码
         uses: actions/checkout@v3
 
-      # 2. 设置 Go 环境
+      # 2. 设置 Go
       - name: Setup Go 1.23.4
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.4'
 
-      # 3. 编译并打包为 tar.gz
-      - name: Build 并打包
+      # 3. 静态编译并打包
+      - name: 静态编译并打包
         run: |
           cd backend
           go mod tidy
-          go mod download
-          go build -o sports-app-linux
+          # 关闭 cgo，静态编译为 Linux/amd64，可执行不依赖 glibc 动态 loader
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o sports-app-linux
           tar czf ../sports-app-linux.tar.gz sports-app-linux
 
-      # 4. 清理 /root/backend 下的旧包
-      - name: 清理旧包
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            mkdir -p /root/backend
-            rm -f /root/backend/sports-app-linux.tar.gz
-
-      # 5. 上传新包到 /root/backend
+      # 4. 上传包到 /root/backend
       - name: 上传包到 /root/backend
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -50,8 +39,8 @@ jobs:
           source: "sports-app-linux.tar.gz"
           target: "/root/backend/"
 
-      # 6. 部署覆盖并启动服务（使用 setsid+nohup 完全脱离 SSH 会话）
-      - name: 部署并启动服务
+      # 5. 部署：解包→覆盖→注 .env→重启 service
+      - name: 部署并重启服务
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -60,13 +49,15 @@ jobs:
           script: |
             set -e
 
-            # 解压压缩包并清理
+            # 准备目录
+            mkdir -p /root/backend
+
+            # 解压并清理
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             rm /root/backend/sports-app-linux.tar.gz
 
-            # 覆盖旧二进制
-            rm -f /www/wwwroot/redamancy/backend/sports-app-linux
-            mv /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
+            # 覆盖到部署目录
+            mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
             # 注入最新 .env
@@ -80,17 +71,6 @@ jobs:
             # 确保日志目录存在
             mkdir -p /www/wwwroot/redamancy/backend/logs
 
-            # 停掉旧进程
-            pkill -f sports-app-linux || true
-
-            # 使用 setsid + nohup 启动新进程
-            # 1) setsid: 新会话，不继承当前 shell
-            # 2) nohup: 忽略 SIGHUP
-            # 3) 全部重定向 stdin/stdout/stderr
-            setsid nohup /www/wwwroot/redamancy/backend/sports-app-linux \
-              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null &
-
-            # 脚本立即以 0 退出，不再等待后台进程
-            exit 0
-      
-    
+            # 停掉旧进程并用 systemd 重启（如果你仍用 systemd）
+            sudo systemctl daemon-reload
+            sudo systemctl restart sports-app.service
