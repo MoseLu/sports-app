@@ -9,8 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"sports-app/backend/config"
+
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
 type UploadService struct{}
@@ -25,10 +26,14 @@ func (s *UploadService) UploadImage(ctx context.Context, file *multipart.FileHea
 	defer src.Close()
 
 	// 加载 OSS 配置
-	endpoint := config.GetOSSEndpoint()
-	accessKeyID := config.GetOSSAccessKeyID()
-	accessKeySecret := config.GetOSSAccessKeySecret()
-	bucketName := config.GetOSSBucket()
+	ossConfig, err := config.LoadOSSConfig()
+	if err != nil {
+		return "", fmt.Errorf("加载 OSS 配置失败: %w", err)
+	}
+	endpoint := ossConfig.Endpoint
+	accessKeyID := ossConfig.AccessKeyID
+	accessKeySecret := ossConfig.AccessKeySecret
+	bucketName := ossConfig.Bucket
 
 	// 初始化 OSS 客户端
 	client, err := oss.New(endpoint, accessKeyID, accessKeySecret)
@@ -59,10 +64,14 @@ func (s *UploadService) UploadImage(ctx context.Context, file *multipart.FileHea
 // DeleteImage 从 OSS 删除图片
 func (s *UploadService) DeleteImage(ctx context.Context, imageURL string) error {
 	// 加载 OSS 配置
-	endpoint := config.GetOSSEndpoint()
-	accessKeyID := config.GetOSSAccessKeyID()
-	accessKeySecret := config.GetOSSAccessKeySecret()
-	bucketName := config.GetOSSBucket()
+	ossConfig, err := config.LoadOSSConfig()
+	if err != nil {
+		return fmt.Errorf("加载 OSS 配置失败: %w", err)
+	}
+	endpoint := ossConfig.Endpoint
+	accessKeyID := ossConfig.AccessKeyID
+	accessKeySecret := ossConfig.AccessKeySecret
+	bucketName := ossConfig.Bucket
 
 	// 解析 objectKey
 	baseURL := fmt.Sprintf("https://%s.%s/", bucketName, endpoint)
