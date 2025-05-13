@@ -3,7 +3,7 @@ name: CI/CD 后端部署
 on:
   push:
     branches:
-      - master     # 触发分支改为 master
+      - master     # 触发分支
 
 jobs:
   build-and-deploy:
@@ -20,7 +20,7 @@ jobs:
         with:
           go-version: '1.23.4'
 
-      # 3. 进入 backend 目录，下载依赖并编译
+      # 3. 编译后端二进制
       - name: Build sports-app-linux
         run: |
           cd backend
@@ -28,24 +28,40 @@ jobs:
           go mod download
           go build -o sports-app-linux
 
-      # 4. 上传二进制到你的阿里云服务器
-      - name: 上传二进制
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "backend/sports-app-linux"
-          target: "/www/wwwroot/redamancy/backend/"
-
-      # 5. 生成 .env（注入 OSS 密钥）
-      - name: 上传 .env 到服务器
+      # 4. 删除 /root 下旧二进制
+      - name: 删除 /root 旧二进制
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            rm -f /root/sports-app-linux
+
+      # 5. 上传新二进制到 /root
+      - name: 上传二进制到 /root
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "backend/sports-app-linux"
+          target: "/root/"
+
+      # 6. 在服务器上覆盖部署、生成 .env 并重启服务
+      - name: 部署并重启服务
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # 强制删除旧二进制并覆盖
+            rm -f /www/wwwroot/redamancy/backend/sports-app-linux
+            mv -f /root/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
+            chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
+
+            # 生成最新 .env（注入 OSS 密钥）
             cat > /www/wwwroot/redamancy/backend/.env << 'EOF'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
@@ -53,13 +69,6 @@ jobs:
             OSS_BUCKET=sports-app-images
             EOF
 
-      # 6. 重启 systemd 服务
-      - name: 重启 systemd 服务
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
+            # 重载并重启 systemd 服务
             sudo systemctl daemon-reload
             sudo systemctl restart sports-app.service
