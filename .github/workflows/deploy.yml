@@ -48,7 +48,7 @@ jobs:
           source: "backend/sports-app-linux"
           target: "/root/"
 
-      # 6. 在服务器上覆盖部署、生成 .env 并重启服务
+      # 6. 部署并重启服务（无需 systemd，直接杀进程并用 nohup 启动）
       - name: 部署并重启服务
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -56,12 +56,14 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # 强制删除旧二进制并覆盖
+            # 删除旧二进制
             rm -f /www/wwwroot/redamancy/backend/sports-app-linux
+
+            # 移动新二进制
             mv -f /root/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 生成最新 .env（注入 OSS 密钥）
+            # 注入最新 .env
             cat > /www/wwwroot/redamancy/backend/.env << 'EOF'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
@@ -69,6 +71,13 @@ jobs:
             OSS_BUCKET=sports-app-images
             EOF
 
-            # 重载并重启 systemd 服务
-            sudo systemctl daemon-reload
-            sudo systemctl restart sports-app.service
+            # 确保日志目录存在
+            mkdir -p /www/wwwroot/redamancy/backend/logs
+
+            # 停掉旧进程
+            pkill -f sports-app-linux || true
+
+            # 后台启动新进程并将日志写入 logs/app.log
+            nohup /www/wwwroot/redamancy/backend/sports-app-linux \
+              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 &
+
