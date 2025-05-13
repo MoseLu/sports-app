@@ -134,4 +134,4 @@ jobs:
           SLACK_CHANNEL: deployments
           SLACK_COLOR: danger
           SLACK_TITLE: Deployment Failed
-          SLACK_MESSAGE: 'Sports App deployment failed! Please check the logs.'
+          SLACK_MESSAGE: "Sports App deployment failed! Please check the logs."
