@@ -3,7 +3,7 @@ name: CI/CD 后端部署
 on:
   push:
     branches:
-      - master     # 触发分支
+      - master  # 触发分支
 
 jobs:
   build-and-deploy:
@@ -50,8 +50,8 @@ jobs:
           source: "sports-app-linux.tar.gz"
           target: "/root/backend/"
 
-      # 6. 部署覆盖并后台启动（脱离 SSH 会话）
-      - name: 部署并重启服务
+      # 6. 部署覆盖并后台启动（彻底脱离 SSH 会话）
+      - name: 部署并启动服务
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -60,11 +60,11 @@ jobs:
           script: |
             set -e
 
-            # 解压到 /root/backend
+            # 解压并清理包
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             rm /root/backend/sports-app-linux.tar.gz
 
-            # 覆盖旧二进制
+            # 覆盖部署目录的二进制
             rm -f /www/wwwroot/redamancy/backend/sports-app-linux
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
@@ -83,9 +83,9 @@ jobs:
             # 停掉旧进程
             pkill -f sports-app-linux || true
 
-            # 后台启动新进程，并彻底脱离当前 shell
-            nohup /www/wwwroot/redamancy/backend/sports-app-linux \
+            # 使用 setsid 启动新进程，让它脱离当前 SSH 会话
+            setsid /www/wwwroot/redamancy/backend/sports-app-linux \
               > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null &
 
-            # 确保脚本以 0 退出
+            # 强制脚本以 0 退出
             exit 0
