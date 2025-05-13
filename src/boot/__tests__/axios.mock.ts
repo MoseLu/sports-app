@@ -53,7 +53,7 @@ api.interceptors.response.use(
 );
 
 // 导出默认函数
-export default function setupAxios({ app }) {
+export default function setupAxios({ app }: { app: any }) {
   app.config.globalProperties.$axios = axios;
   app.config.globalProperties.$api = api;
 }
