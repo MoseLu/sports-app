@@ -3,7 +3,7 @@ name: CI/CD 后端部署
 on:
   push:
     branches:
-      - master     # 推送到 master 分支时触发
+      - master     # 推送到 master 分支触发
 
 jobs:
   build-and-deploy:
@@ -14,24 +14,24 @@ jobs:
       - name: Checkout 代码
         uses: actions/checkout@v3
 
-      # 2. 缓存 Go modules（支持在任意子目录的 go.sum）
+      # 2. 缓存 Go modules（只匹配 backend/go.sum）
       - name: Cache Go modules
         uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
 
-      # 3. 设置 Go 1.23.4
-      - name: Setup Go
+      # 3. 设置 Go 环境
+      - name: Setup Go 1.23.4
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.4'
 
-      # 4. 下载依赖并编译（在 backend 目录下）
+      # 4. 在 backend 目录下载依赖并编译
       - name: Download dependencies & Build
         working-directory: backend
         run: |
@@ -48,7 +48,7 @@ jobs:
           source: "backend/sports-app-linux"
           target: "/www/wwwroot/redamancy/backend/"
 
-      # 6. 在服务器上生成 .env（注入 OSS 密钥）
+      # 6. 注入 .env（OSS 密钥）
       - name: 上传 .env 到服务器
         uses: appleboy/ssh-action@v0.1.7
         with:
