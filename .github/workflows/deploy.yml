@@ -25,7 +25,6 @@ jobs:
       - name: Type check with vue-tsc
         run: npx vue-tsc --noEmit
 
-
       - name: Lint
         run: npm run lint
 
@@ -55,13 +54,18 @@ jobs:
       - name: Create Bundle
         run: |
           cd dist/spa
+          mkdir -p bundles
           zip -r bundle.zip .
           SHA256=$(sha256sum bundle.zip | awk '{print $1}')
-          echo "SHA256=$SHA256" >> $GITHUB_ENV
+          echo "SHA256=${SHA256}" >> $GITHUB_ENV
+
+      - name: Capture version
+        id: version
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
 
       - name: Create Manifest
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=${{ steps.version.outputs.version }}
           cat > dist/spa/manifest.json << EOF
           {
             "version": "${VERSION}",
@@ -76,22 +80,40 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          cat >>~/.ssh/config <<END
+          cat >> ~/.ssh/config <<EOF
           Host deploy_host
             HostName ${{ secrets.SERVER_HOST }}
             User ${{ secrets.SERVER_USER }}
             IdentityFile ~/.ssh/deploy_key
             StrictHostKeyChecking no
-          END
+          EOF
 
-      - name: Deploy to Server
+      - name: Deploy Frontend Bundle
         run: |
           scp -F ~/.ssh/config dist/spa/bundle.zip dist/spa/manifest.json deploy_host:/www/wwwroot/redamancy/backend/updates/
           ssh -F ~/.ssh/config deploy_host '
             cd /www/wwwroot/redamancy/backend/updates
-            mv bundle.zip bundles/bundle-$(node -p "require(\"./manifest.json\").version").zip
+            mkdir -p bundles
+            mv bundle.zip bundles/bundle-${{ steps.version.outputs.version }}.zip
             chown -R www:www .
             chmod -R 755 .
+          '
+
+      - name: Deploy Backend Service
+        run: |
+          ssh -F ~/.ssh/config deploy_host '
+            set -e
+            cd /www/wwwroot/redamancy/backend
+            git fetch --all
+            git reset --hard origin/master
+            GOOS=linux GOARCH=amd64 go build -o redamancy-backend .
+            chmod +x redamancy-backend
+            if command -v systemctl >/dev/null; then
+              systemctl restart redamancy-backend.service || true
+            else
+              pkill -f redamancy-backend || true
+              nohup ./redamancy-backend > /www/wwwroot/redamancy/backend/backend.log 2>&1 &
+            fi
           '
 
       - name: Notify Success
@@ -102,7 +124,7 @@ jobs:
           SLACK_CHANNEL: deployments
           SLACK_COLOR: good
           SLACK_TITLE: Deployment Successful
-          SLACK_MESSAGE: 'Sports App v${{ steps.version.outputs.version }} has been deployed successfully!'
+          SLACK_MESSAGE: "Sports App v${{ steps.version.outputs.version }} has been deployed successfully!"
 
       - name: Notify Failure
         if: failure()
@@ -112,4 +134,4 @@ jobs:
           SLACK_CHANNEL: deployments
           SLACK_COLOR: danger
           SLACK_TITLE: Deployment Failed
-          SLACK_MESSAGE: 'Sports App deployment failed! Please check the logs.'
+          SLACK_MESSAGE: "Sports App deployment failed! Please check the logs."
