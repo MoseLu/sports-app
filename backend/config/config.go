@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"gopkg.in/yaml.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -39,14 +40,6 @@ type ServerConfig struct {
 	Port string `yaml:"port"`
 }
 
-// EmailConfig 邮件配置
-type EmailConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-}
-
 // RedisConfig Redis配置
 type RedisConfig struct {
 	Host     string `yaml:"host"`
@@ -77,28 +70,30 @@ var (
 func GetConfig() *Config {
 	if cfg == nil {
 		cfg = &Config{
-			DB: DBConfig{
+			Database: DBConfig{
 				Host:     getEnv("DB_HOST", "localhost"),
 				Port:     getEnv("DB_PORT", "3306"),
 				User:     getEnv("DB_USER", "root"),
 				Password: getEnv("DB_PASSWORD", "123456"),
-				DBName:   getEnv("DB_NAME", "sports_app"),
+				Name:     getEnv("DB_NAME", "sports_app"),
 			},
 			LogsDB: DBConfig{
 				Host:     getEnv("LOGS_DB_HOST", "localhost"),
 				Port:     getEnv("LOGS_DB_PORT", "3306"),
 				User:     getEnv("LOGS_DB_USER", "root"),
 				Password: getEnv("LOGS_DB_PASSWORD", "123456"),
-				DBName:   getEnv("LOGS_DB_NAME", "sports_app_logs"),
+				Name:     getEnv("LOGS_DB_NAME", "sports_app_logs"),
 			},
 			JWT: JWTConfig{
 				PrivateKeyPath: getEnv("JWT_PRIVATE_KEY_PATH", filepath.Join("config", "keys", "private.pem")),
 				PublicKeyPath:  getEnv("JWT_PUBLIC_KEY_PATH", filepath.Join("config", "keys", "public.pem")),
-				Expire:         getEnvInt64("JWT_EXPIRE", 86400), // 默认24小时
+				ExpiresIn:      int(getEnvInt64("JWT_EXPIRE", 86400)), // 默认24小时
 			},
-			ServerPort: getEnv("PORT", "8080"),
+			Server: ServerConfig{
+				Port: getEnv("PORT", "8080"),
+			},
 		}
-		log.Printf("主数据库配置: %+v", cfg.DB)
+		log.Printf("主数据库配置: %+v", cfg.Database)
 		log.Printf("日志数据库配置: %+v", cfg.LogsDB)
 	}
 	return cfg
@@ -123,11 +118,11 @@ func GetLogsDB() *gorm.DB {
 // initDB 初始化主数据库连接
 func initDB() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		cfg.DB.User,
-		cfg.DB.Password,
-		cfg.DB.Host,
-		cfg.DB.Port,
-		cfg.DB.DBName,
+		cfg.Database.User,
+		cfg.Database.Password,
+		cfg.Database.Host,
+		cfg.Database.Port,
+		cfg.Database.Name,
 	)
 
 	// 配置数据库连接池
@@ -151,7 +146,7 @@ func initLogsDB() {
 		cfg.LogsDB.Password,
 		cfg.LogsDB.Host,
 		cfg.LogsDB.Port,
-		cfg.LogsDB.DBName,
+		cfg.LogsDB.Name,
 	)
 
 	// 配置数据库连接池
@@ -186,9 +181,27 @@ func getEnvInt64(key string, defaultValue int64) int64 {
 	return defaultValue
 }
 
-type OSSConfig struct {
-	Endpoint        string `yaml:"endpoint"`
-	AccessKeyID     string `yaml:"access_key_id"`
-	AccessKeySecret string `yaml:"access_key_secret"`
-	BucketName      string `yaml:"bucket_name"`
+// JWTConfig JWT 配置
+type JWTConfig struct {
+	SecretKey      string `yaml:"secret_key"`
+	ExpiresIn      int    `yaml:"expires_in"`
+	PrivateKeyPath string `yaml:"private_key_path"`
+	PublicKeyPath  string `yaml:"public_key_path"`
+}
+
+// LoadConfig 从配置文件加载配置
+func LoadConfig() (*Config, error) {
+	file, err := os.Open("config/config.yaml")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var config Config
+	decoder := yaml.NewDecoder(file)
+	if err := decoder.Decode(&config); err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
