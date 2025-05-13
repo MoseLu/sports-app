@@ -50,7 +50,7 @@ jobs:
           source: "sports-app-linux.tar.gz"
           target: "/root/backend/"
 
-      # 6. 部署覆盖并后台启动（彻底脱离 SSH 会话）
+      # 6. 部署覆盖并启动服务（使用 setsid+nohup 完全脱离 SSH 会话）
       - name: 部署并启动服务
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -60,7 +60,7 @@ jobs:
           script: |
             set -e
 
-            # 解压并清理压缩包
+            # 解压压缩包并清理
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             rm /root/backend/sports-app-linux.tar.gz
 
@@ -83,11 +83,14 @@ jobs:
             # 停掉旧进程
             pkill -f sports-app-linux || true
 
-            # 启动新进程并彻底脱离当前 shell
-            nohup /www/wwwroot/redamancy/backend/sports-app-linux \
-              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 </dev/null &
-            disown
+            # 使用 setsid + nohup 启动新进程
+            # 1) setsid: 新会话，不继承当前 shell
+            # 2) nohup: 忽略 SIGHUP
+            # 3) 全部重定向 stdin/stdout/stderr
+            setsid nohup /www/wwwroot/redamancy/backend/sports-app-linux \
+              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null &
 
-            # 脚本正常退出
+            # 脚本立即以 0 退出，不再等待后台进程
             exit 0
+      
     
