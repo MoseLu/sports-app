@@ -1,3 +1,4 @@
+// backend/main.go
 package main
 
 import (
@@ -6,21 +7,27 @@ import (
 	"sports-app/backend/routes"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	// 初始化配置（必须调用一次，保证 cfg 不为 nil）
+	// 1. 加载 .env 文件（CI 已经写入到后端目录中）
+	if err := godotenv.Load(); err != nil {
+		log.Println("未找到 .env 文件，或加载失败，将尝试使用系统环境变量")
+	}
+
+	// 2. 初始化配置（包括从环境变量读取 OSS 配置）
 	config.GetConfig()
 
-	// 初始化数据库连接
+	// 3. 初始化数据库连接
 	db := config.GetDB()
 	logsDB := config.GetLogsDB()
 
-	// 设置路由
+	// 4. 设置 Gin 路由
 	r := gin.Default()
 	routes.SetupRoutes(r, db, logsDB)
 
-	// 启动服务器
+	// 5. 启动 HTTP 服务器
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("启动服务器失败:", err)
 	}
