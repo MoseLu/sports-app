@@ -17,24 +17,27 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'pnpm'
+          cache: 'npm'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: Install npm
+        uses: npm/action-setup@v2
         with:
           version: 8
 
       - name: Install Dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Type Check
-        run: pnpm vue-tsc --noEmit
+        run: npm run vue-tsc --noEmit
 
       - name: Lint
-        run: pnpm lint
+        run: npm run lint
 
       - name: Run Tests
-        run: pnpm test
+        run: npm test
+
+      - name: Build
+        run: npm run build
 
   build-and-deploy:
     needs: test
@@ -48,18 +51,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'pnpm'
+          cache: 'npm'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: Install npm
+        uses: npm/action-setup@v2
         with:
           version: 8
 
       - name: Install Dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Build
-        run: pnpm quasar build -m spa
+        run: npm quasar build -m spa
 
       - name: Create Bundle
         run: |
