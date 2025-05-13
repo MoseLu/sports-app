@@ -19,11 +19,6 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install npm
-        uses: npm/action-setup@v2
-        with:
-          version: 8
-
       - name: Install Dependencies
         run: npm install
 
@@ -35,9 +30,6 @@ jobs:
 
       - name: Run Tests
         run: npm test
-
-      - name: Build
-        run: npm run build
 
   build-and-deploy:
     needs: test
@@ -53,16 +45,11 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install npm
-        uses: npm/action-setup@v2
-        with:
-          version: 8
-
       - name: Install Dependencies
         run: npm install
 
       - name: Build
-        run: npm quasar build -m spa
+        run: npm run build
 
       - name: Create Bundle
         run: |
