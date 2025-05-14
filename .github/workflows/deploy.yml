@@ -38,7 +38,7 @@ jobs:
           source: "sports-app-linux.tar.gz"
           target: "/root/backend/"
 
-      # 5. 部署并用 tmux 启动后台进程
+           # 5. 部署并启动服务 (tmux)
       - name: 部署并启动服务 (tmux)
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -48,7 +48,7 @@ jobs:
           script: |
             set -e
 
-            # 解包
+            # 准备目录 & 解包
             mkdir -p /root/backend
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             rm /root/backend/sports-app-linux.tar.gz
@@ -63,30 +63,29 @@ jobs:
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
             OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
             OSS_BUCKET=sports-app-images
-            # 如有数据库配置，可继续在此添加：
-            # DB_HOST=${{ secrets.DB_HOST }}
-            # DB_PORT=${{ secrets.DB_PORT }}
-            # DB_USER=${{ secrets.DB_USER }}
-            # DB_PASS=${{ secrets.DB_PASS }}
-            # DB_NAME=${{ secrets.DB_NAME }}
             EOF
 
-            # 确保日志目录
+            # 确保日志目录存在
             mkdir -p /www/wwwroot/redamancy/backend/logs
 
-            # 安装 tmux（如果没安装）
+            # 安装 tmux（检测包管理器）
             if ! command -v tmux >/dev/null; then
-              sudo apt-get update
-              sudo apt-get install -y tmux
+              if command -v yum >/dev/null; then
+                sudo yum install -y tmux
+              elif command -v dnf >/dev/null; then
+                sudo dnf install -y tmux
+              else
+                echo "Error: no supported package manager (yum/dnf) to install tmux" >&2
+                exit 1
+              fi
             fi
 
-            # 杀掉旧的 tmux 会话
+            # 停掉旧的 tmux 会话
             tmux kill-session -t sports-app || true
 
-            # 启动新会话，后台跑服务并落日志
+            # 用 tmux 启动新会话，后台跑服务并写日志
             tmux new-session -d -s sports-app \
               "/www/wwwroot/redamancy/backend/sports-app-linux \
                 > /www/wwwroot/redamancy/backend/logs/app.log 2>&1"
 
-            # 立即退出脚本
             exit 0

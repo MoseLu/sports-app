@@ -25,10 +25,10 @@ func main() {
 
 	// 4. 设置 Gin 路由
 	r := gin.Default()
-	routes.SetupRoutes(r, db, logsDB)
 
 	// 5. 将 /favicon.ico 映射到 backend/static/favicon.ico
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
+	routes.SetupRoutes(r, db, logsDB)
 
 	// 6. 启动 HTTP 服务器
 	if err := r.Run(":8080"); err != nil {
