@@ -59,8 +59,14 @@ func (s *AuthService) Login(username, password string) (*models.User, error) {
 		return nil, errors.New("用户名或密码错误")
 	}
 	
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if !user.CheckPassword(password) {
 		return nil, errors.New("用户名或密码错误")
+	}
+	
+	// 更新最后登录时间
+	user.LastLoginAt = time.Now()
+	if err := s.db.Save(&user).Error; err != nil {
+		return nil, fmt.Errorf("更新登录时间失败: %v", err)
 	}
 	
 	return &user, nil
