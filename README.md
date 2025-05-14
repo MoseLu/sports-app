@@ -1,33 +1,36 @@
 # Sports App / 运动打卡应用
 
+<details>
+<summary>English / 英文</summary>
+
 A modern sports tracking application built with Quasar Framework and Go backend.
 一个使用 Quasar 框架和 Go 后端构建的现代运动打卡应用。
 
-## Features / 功能特点
+## Features
 
-### Frontend / 前端
+### Frontend
 
-- Modern and responsive UI / 现代化响应式界面
-- Cross-platform compatibility / 跨平台兼容性
-- Hot-code reloading for development / 开发热重载
-- Built-in linting and formatting / 内置代码检查和格式化
-- Production-ready build system / 生产环境构建系统
-- Dark mode support / 暗色模式支持
-- Internationalization / 国际化支持
-- Data visualization / 数据可视化
+- Modern and responsive UI
+- Cross-platform compatibility
+- Hot-code reloading for development
+- Built-in linting and formatting
+- Production-ready build system
+- Dark mode support
+- Internationalization
+- Data visualization
 
-### Backend / 后端
+### Backend
 
-- RESTful API / RESTful API接口
-- JWT Authentication / JWT认证
-- Database integration / 数据库集成
-- Email verification / 邮箱验证
-- Data statistics / 数据统计
-- Performance optimization / 性能优化
+- RESTful API
+- JWT Authentication
+- Database integration
+- Email verification
+- Data statistics
+- Performance optimization
 
-## Tech Stack / 技术栈
+## Tech Stack
 
-### Frontend / 前端
+### Frontend
 
 - Vue 3 + TypeScript
 - Quasar Framework
@@ -36,7 +39,7 @@ A modern sports tracking application built with Quasar Framework and Go backend.
 - ECharts (Data Visualization)
 - Axios (HTTP Client)
 
-### Backend / 后端
+### Backend
 
 - Go 1.21+
 - Gin Web Framework
@@ -44,45 +47,45 @@ A modern sports tracking application built with Quasar Framework and Go backend.
 - MySQL 5.7+
 - JWT (Authentication)
 
-## Prerequisites / 环境要求
+## Prerequisites
 
 - Node.js (v14 or higher)
 - Go 1.21 or higher
 - MySQL 5.7 or higher
 - npm or yarn package manager
 
-## Installation / 安装
+## Installation
 
-### Install the dependencies / 安装依赖
+### Install the dependencies
 
 ```bash
-# Frontend / 前端
+# Frontend
 cd sports-app
 yarn
 # or
 npm install
 
-# Backend / 后端
+# Backend
 cd backend
 go mod download
 ```
 
-## Development / 开发
+## Development
 
-### Start the frontend in development mode / 启动前端开发服务器
+### Start the frontend in development mode
 
 ```bash
 quasar dev
 ```
 
-### Start the backend server / 启动后端服务器
+### Start the backend server
 
 ```bash
 cd backend
 go run main.go
 ```
 
-### Lint the files / 代码检查
+### Lint the files
 
 ```bash
 yarn lint
@@ -90,7 +93,7 @@ yarn lint
 npm run lint
 ```
 
-### Format the files / 代码格式化
+### Format the files
 
 ```bash
 yarn format
@@ -98,15 +101,15 @@ yarn format
 npm run format
 ```
 
-## Production / 生产环境
+## Production
 
-### Build the app for production / 构建生产版本
+### Build the app for production
 
 ```bash
 quasar build
 ```
 
-### Deploy the backend / 部署后端
+### Deploy the backend
 
 ```bash
 cd backend
@@ -114,43 +117,210 @@ go build
 ./sports-app
 ```
 
-## Project Structure / 项目结构
+### Automated Deployment
+
+This project uses GitHub Actions for automated deployment:
+
+1. Deployment workflow is triggered when code is pushed to the master branch
+2. The workflow automatically builds both frontend and backend code
+3. After successful build, it automatically deploys to Aliyun server
+4. Uses systemd service to manage the application process
+5. Automatically restarts the service to apply updates
+
+The deployment process is fully automated, requiring no manual intervention.
+
+## Project Structure
 
 ```
 sports-app/
-├── backend/          # Backend service / 后端服务
-│   ├── config/       # Configuration / 配置
-│   ├── controllers/  # Controllers / 控制器
-│   ├── models/       # Data models / 数据模型
-│   ├── routes/       # Routes / 路由
-│   ├── utils/        # Utilities / 工具函数
-│   └── main.go       # Entry point / 入口文件
-├── src/              # Frontend application / 前端应用
-│   ├── assets/       # Static assets / 静态资源
-│   ├── components/   # Components / 组件
-│   ├── pages/        # Pages / 页面
-│   ├── stores/       # State management / 状态管理
-│   └── App.vue       # Root component / 根组件
-├── docs/             # Documentation / 文档
-└── logs/             # Logs / 日志
+├── backend/          # Backend service
+│   ├── config/       # Configuration
+│   ├── controllers/  # Controllers
+│   ├── models/       # Data models
+│   ├── routes/       # Routes
+│   ├── utils/        # Utilities
+│   └── main.go       # Entry point
+├── src/              # Frontend application
+│   ├── assets/       # Static assets
+│   ├── components/   # Components
+│   ├── pages/        # Pages
+│   ├── stores/       # State management
+│   └── App.vue       # Root component
+├── docs/             # Documentation
+└── logs/             # Logs
 ```
 
-## Features in Development / 开发中的功能
+## Features in Development
 
-- Community features / 社区功能
-- Personal profile system / 个人资料系统
-- Social features / 社交功能
-- Data analysis / 数据分析
+- Community features
+- Personal profile system
+- Social features
+- Data analysis
 
-## License / 许可证
+## License
 
 This project is licensed under the MIT License.
+
+</details>
+
+<details>
+<summary>中文</summary>
+
+一个使用 Quasar 框架和 Go 后端构建的现代运动打卡应用。
+
+## 功能特点
+
+### 前端
+
+- 现代化响应式界面
+- 跨平台兼容性
+- 开发热重载
+- 内置代码检查和格式化
+- 生产环境构建系统
+- 暗色模式支持
+- 国际化支持
+- 数据可视化
+
+### 后端
+
+- RESTful API接口
+- JWT认证
+- 数据库集成
+- 邮箱验证
+- 数据统计
+- 性能优化
+
+## 技术栈
+
+### 前端
+
+- Vue 3 + TypeScript
+- Quasar Framework
+- Pinia (状态管理)
+- Vue Router
+- ECharts (数据可视化)
+- Axios (HTTP客户端)
+
+### 后端
+
+- Go 1.21+
+- Gin Web框架
+- GORM (ORM)
+- MySQL 5.7+
+- JWT (认证)
+
+## 环境要求
+
+- Node.js (v14或更高)
+- Go 1.21或更高
+- MySQL 5.7或更高
+- npm或yarn包管理器
+
+## 安装
+
+### 安装依赖
+
+```bash
+# 前端
+cd sports-app
+yarn
+# 或
+npm install
+
+# 后端
+cd backend
+go mod download
+```
+
+## 开发
+
+### 启动前端开发服务器
+
+```bash
+quasar dev
+```
+
+### 启动后端服务器
+
+```bash
+cd backend
+go run main.go
+```
+
+### 代码检查
+
+```bash
+yarn lint
+# 或
+npm run lint
+```
+
+### 代码格式化
+
+```bash
+yarn format
+# 或
+npm run format
+```
+
+## 生产环境
+
+### 构建生产版本
+
+```bash
+quasar build
+```
+
+### 部署后端
+
+```bash
+cd backend
+go build
+./sports-app
+```
+
+### 自动化部署
+
+本项目使用 GitHub Actions 实现自动化部署流程：
+
+1. 当代码推送到 master 分支时，自动触发部署工作流
+2. 工作流会自动构建前端和后端代码
+3. 构建完成后，自动部署到阿里云服务器
+4. 使用 systemd 服务管理应用进程
+5. 自动重启服务以应用更新
+
+部署流程完全自动化，无需手动操作。
+
+## 项目结构
+
+```
+sports-app/
+├── backend/          # 后端服务
+│   ├── config/       # 配置
+│   ├── controllers/  # 控制器
+│   ├── models/       # 数据模型
+│   ├── routes/       # 路由
+│   ├── utils/        # 工具函数
+│   └── main.go       # 入口文件
+├── src/              # 前端应用
+│   ├── assets/       # 静态资源
+│   ├── components/   # 组件
+│   ├── pages/        # 页面
+│   ├── stores/       # 状态管理
+│   └── App.vue       # 根组件
+├── docs/             # 文档
+└── logs/             # 日志
+```
+
+## 开发中的功能
+
+- 社区功能
+- 个人资料系统
+- 社交功能
+- 数据分析
+
+## 许可证
+
 本项目采用 MIT 许可证。
 
-# Triggering CI/CD workflow for master branch
-
-# Another trigger for CI/CD workflow
-
-# Final trigger for CI/CD workflow
-
-测试正常提交
+</details>
