@@ -26,7 +26,13 @@ func main() {
 	// 4. 设置 Gin 路由
 	r := gin.Default()
 
-	// 5. 把 /static/ 下所有文件映射到 ./static 目录
+	// 5. 全局中间件：为所有响应添加 Link 头，告诉浏览器使用 /favicon.ico 作为标签页图标
+    r.Use(func(c *gin.Context) {
+		c.Header("Link", "</favicon.ico>; rel=icon")
+		c.Next()
+	})
+
+	// 6. 把 /static/ 下所有文件映射到 ./static 目录
 	r.Static("/static", "./static")
 
 	// 同时把 /favicon.ico 直接映射到 ./static/favicon.ico
@@ -35,7 +41,7 @@ func main() {
 	// 下面再注册你的 API 路由
 	routes.SetupRoutes(r, db, logsDB)
 
-	// 6. 启动 HTTP 服务器
+	// 7. 启动 HTTP 服务器
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("启动服务器失败:", err)
 	}
