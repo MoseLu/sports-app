@@ -44,8 +44,9 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+           # 只推 favicon.ico 文件
           source: "backend/static/favicon.ico"
-          target: "/www/wwwroot/redamancy/backend/static/"
+          target: "/www/wwwroot/redamancy/backend/static/favicon.ico"
   
 
            # 5. 部署并启动服务 (tmux)
