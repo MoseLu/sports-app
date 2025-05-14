@@ -26,7 +26,15 @@ func main() {
 	// 4. 设置 Gin 路由
 	r := gin.Default()
 
-	// 5. 将 /favicon.ico 映射到 backend/static/favicon.ico
+	// 5. 把 /static/ 下所有文件映射到 ./static 目录
+	r.Static("/static", "./static")
+
+	// 同时把 /favicon.ico 直接映射到 ./static/favicon.ico
+	r.StaticFile("/favicon.ico", "./static/favicon.ico")
+
+	// 下面再注册你的 API 路由
+	routes.SetupRoutes(r, db, logsDB)
+
 	r.StaticFile("/favicon.ico", "./static/favicon.ico")
 	routes.SetupRoutes(r, db, logsDB)
 
