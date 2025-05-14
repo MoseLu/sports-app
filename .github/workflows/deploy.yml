@@ -10,17 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout 代码
+      # 1. Checkout
       - name: Checkout 代码
         uses: actions/checkout@v3
 
-      # 2. 设置 Go 环境
+      # 2. Setup Go
       - name: Setup Go 1.23.4
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.4'
 
-      # 3. 静态编译并打包
+      # 3. 编译并打包
       - name: 静态编译并打包
         run: |
           cd backend
@@ -29,38 +29,20 @@ jobs:
             go build -a -installsuffix cgo -o sports-app-linux
           tar czf ../sports-app-linux.tar.gz sports-app-linux
 
-      # 4. 上传二进制包到 /root/backend
-      - name: 上传二进制包
+      # 4. 上传二进制包 & favicon 到服务器
+      - name: 上传部署文件
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "sports-app-linux.tar.gz"
+          source: |
+            sports-app-linux.tar.gz
+            backend/static/favicon.ico
           target: "/root/backend/"
 
-      # 5. 确保 static 目录存在
-      - name: 创建 static 目录
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            mkdir -p /www/wwwroot/redamancy/backend/static
-
-      # 6. 上传 favicon.ico
-      - name: 上传 favicon.ico
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "backend/static/favicon.ico"
-          target: "/www/wwwroot/redamancy/backend/static/"
-
-      # 7. 部署并启动服务（setsid + nohup + disown）
-      - name: 部署并启动服务
+      # 5. 部署并创建/重启 systemd 服务
+      - name: 部署并重启 systemd 服务
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -69,14 +51,20 @@ jobs:
           script: |
             set -e
 
-            # 解包 & 覆盖二进制
-            mkdir -p /root/backend
+            # 保证目录结构
+            mkdir -p /root/backend \
+                     /www/wwwroot/redamancy/backend/static \
+                     /www/wwwroot/redamancy/backend/logs
+
+            # 解包并覆盖二进制
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
-            rm   /root/backend/sports-app-linux.tar.gz
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 写入 .env
+            # 覆盖 favicon
+            mv -f /root/backend/favicon.ico /www/wwwroot/redamancy/backend/static/favicon.ico
+
+            # 生成 .env
             cat > /www/wwwroot/redamancy/backend/.env << 'EOF'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
@@ -84,15 +72,27 @@ jobs:
             OSS_BUCKET=sports-app-images
             EOF
 
-            # 确保日志目录存在
-            mkdir -p /www/wwwroot/redamancy/backend/logs
+            # 写入 systemd 单元（有则覆盖，无则新建）
+            cat > /etc/systemd/system/sports-app.service << 'EOF'
+            [Unit]
+            Description=Sports App Backend Service
+            After=network.target
 
-            # 杀掉旧进程
-            pkill -f sports-app-linux || true
+            [Service]
+            User=root
+            WorkingDirectory=/www/wwwroot/redamancy/backend
+            EnvironmentFile=/www/wwwroot/redamancy/backend/.env
+            ExecStart=/www/wwwroot/redamancy/backend/sports-app-linux
+            Restart=on-failure
+            RestartSec=5
 
-            # 后台启动新进程，完全脱离当前 SSH 会话
-            setsid nohup /www/wwwroot/redamancy/backend/sports-app-linux \
-              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null & disown
+            [Install]
+            WantedBy=multi-user.target
+            EOF
 
-            # 脚本成功结束
+            # 重载、启用并重启服务
+            systemctl daemon-reload
+            systemctl enable sports-app.service
+            systemctl restart sports-app.service
+
             exit 0
