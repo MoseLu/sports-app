@@ -110,7 +110,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, logsDB *gorm.DB) {
 	// 测试接口 - 不需要任何认证
 	r.GET("/api/test", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "哈哈哈，变成美女吧！",
+			"message": "这是测试接口，不要在意我，是帅哥写的！",
 			"status": "ok",
 			"timestamp": c.GetInt64("timestamp"),
 		})
