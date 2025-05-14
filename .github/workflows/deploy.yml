@@ -6,15 +6,15 @@ on:
       - master
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取代码
+      # 1. Checkout
       - name: Checkout 代码
         uses: actions/checkout@v3
 
-      # 2. 设置 Go 环境
+      # 2. Setup Go
       - name: Setup Go 1.23.4
         uses: actions/setup-go@v4
         with:
@@ -28,7 +28,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sports-app-linux
           tar czf ../sports-app-linux.tar.gz sports-app-linux
 
-      # 4. 上传二进制包
+      # 4. 上传二进制包到 /root/backend
       - name: 上传二进制包
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -58,22 +58,22 @@ jobs:
           source: "backend/static/favicon.ico"
           target: "/www/wwwroot/redamancy/backend/static/"
 
-      # 7. 部署并重启后端（setsid + nohup + disown）
+      # 7. 部署并重启后端 (setsid + nohup + disown)
       - name: 部署并重启后端
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          timeout: 600
-          command_timeout: 600
+          timeout: "600s"
+          command_timeout: "600s"
           script: |
             set -e
 
             # 解包并覆盖二进制
             mkdir -p /root/backend
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
-            rm /root/backend/sports-app-linux.tar.gz
+            rm   /root/backend/sports-app-linux.tar.gz
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
@@ -91,7 +91,7 @@ jobs:
             # 停掉旧进程
             pkill -f sports-app-linux || true
 
-            # 后台启动新进程，彻底脱离 SSH 会话
+            # 后台启动新进程并彻底脱离当前 SSH 会话
             setsid nohup /www/wwwroot/redamancy/backend/sports-app-linux \
               > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null & disown
 
