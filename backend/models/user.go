@@ -34,6 +34,8 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 		return err
 	}
 	u.Password = string(bytes)
+	// 设置注册时间为最后登录时间
+	u.LastLoginAt = time.Now()
 	return nil
 }
 
