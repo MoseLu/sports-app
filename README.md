@@ -1,7 +1,18 @@
 # Sports App / 运动打卡应用
 
-<details>
-<summary>English / 英文</summary>
+<div align="center">
+  <img src="https://img.shields.io/badge/Vue-3.x-brightgreen" alt="Vue 3.x">
+  <img src="https://img.shields.io/badge/Quasar-2.x-blue" alt="Quasar 2.x">
+  <img src="https://img.shields.io/badge/Go-1.21+-00ADD8" alt="Go 1.21+">
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
+</div>
+
+<div align="center">
+  <a href="#english">English</a> |
+  <a href="#chinese">中文</a>
+</div>
+
+<div id="english">
 
 A modern sports tracking application built with Quasar Framework and Go backend.
 一个使用 Quasar 框架和 Go 后端构建的现代运动打卡应用。
@@ -161,10 +172,9 @@ sports-app/
 
 This project is licensed under the MIT License.
 
-</details>
+</div>
 
-<details>
-<summary>中文</summary>
+<div id="chinese">
 
 一个使用 Quasar 框架和 Go 后端构建的现代运动打卡应用。
 
@@ -323,4 +333,4 @@ sports-app/
 
 本项目采用 MIT 许可证。
 
-</details>
+</div>
