@@ -51,28 +51,27 @@ jobs:
 
       # 7. 部署并重启后端
       - name: 部署并重启后端
-        env:
-          HOST: ${{ secrets.SERVER_HOST }}
-          USER: ${{ secrets.SERVER_USER }}
-          KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
-          # 启动 ssh-agent 并加载私钥
-          eval "$(ssh-agent -s)"
-          ssh-add - << 'EOF_KEY'
-          $KEY
-          EOF_KEY
+          # 在 runner 上把私钥写入文件并设置权限
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-          # 覆盖二进制和 .env
-          scp -o StrictHostKeyChecking=no sports-app-linux.tar.gz $USER@$HOST:/root/backend/
-          scp -o StrictHostKeyChecking=no backend/static/favicon.ico $USER@$HOST:/www/wwwroot/redamancy/backend/static/
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          # 上传二进制包和 favicon
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa \
+            sports-app-linux.tar.gz root@${{ secrets.SERVER_HOST }}:/root/backend/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa \
+            backend/static/favicon.ico root@${{ secrets.SERVER_HOST }}:/www/wwwroot/redamancy/backend/static/
+
+          # 在服务器上解包、替换、写入 .env 并重启 systemd
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
             # 解包并替换二进制
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 写入 .env
+            # 写入最新 .env
             cat > /www/wwwroot/redamancy/backend/.env << 'EOT'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
@@ -84,10 +83,11 @@ jobs:
             systemctl daemon-reload
             systemctl restart sports-app.service
 
-            # 输出状态和日志，验证是否重启成功
-            systemctl status sports-app.service --no-pager --lines 10
-            journalctl -u sports-app.service -n 10 --no-pager
+            # 输出状态和日志，确认重启成功
+            systemctl status sports-app.service --no-pager --lines 5
+            journalctl -u sports-app.service -n 5 --no-pager
 
             exit 0
           EOF
+
 
