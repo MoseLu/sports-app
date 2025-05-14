@@ -35,9 +35,6 @@ func main() {
 	// 下面再注册你的 API 路由
 	routes.SetupRoutes(r, db, logsDB)
 
-	r.StaticFile("/favicon.ico", "./static/favicon.ico")
-	routes.SetupRoutes(r, db, logsDB)
-
 	// 6. 启动 HTTP 服务器
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("启动服务器失败:", err)
