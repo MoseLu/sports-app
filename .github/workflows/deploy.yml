@@ -49,10 +49,10 @@ jobs:
           scp -o StrictHostKeyChecking=no backend/static/favicon.ico \
               ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/redamancy/backend/static/
 
-      # 7. 部署并重启后端
+            # 7. 部署并重启后端
       - name: 部署并重启后端
         run: |
-          # 在 runner 上把私钥写入文件并设置权限
+          # 把私钥写到文件
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
@@ -63,31 +63,37 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa \
             backend/static/favicon.ico root@${{ secrets.SERVER_HOST }}:/www/wwwroot/redamancy/backend/static/
 
-          # 在服务器上解包、替换、写入 .env 并重启 systemd
+          # SSH 到服务器执行部署命令
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
-            # 解包并替换二进制
+
+            # 0. 杀掉所有遗留的 sports-app-linux 进程，确保端口 8080 回收
+            pkill -f /www/wwwroot/redamancy/backend/sports-app-linux || true
+
+            # 1. 解包并替换二进制
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 写入最新 .env
+            # 2. 写入最新 .env
             cat > /www/wwwroot/redamancy/backend/.env << 'EOT'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
             OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
             OSS_BUCKET=sports-app-images
-            EOT
+          # 需要的话也可以在这里添加数据库等其它环境变量
+          EOT
 
-            # 重载并重启 systemd 服务
+            # 3. 重载并重启 systemd 服务
             systemctl daemon-reload
             systemctl restart sports-app.service
 
-            # 输出状态和日志，确认重启成功
+            # 4. 输出状态和日志，确认已重启
             systemctl status sports-app.service --no-pager --lines 5
             journalctl -u sports-app.service -n 5 --no-pager
 
             exit 0
           EOF
+
 
 
