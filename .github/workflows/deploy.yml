@@ -6,15 +6,15 @@ on:
       - master
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取最新代码
+      # 1. Checkout
       - name: Checkout 代码
         uses: actions/checkout@v3
 
-      # 2. 设置 Go 环境
+      # 2. Setup Go
       - name: Setup Go 1.23.4
         uses: actions/setup-go@v4
         with:
@@ -25,81 +25,68 @@ jobs:
         run: |
           cd backend
           go mod tidy
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-            go build -o sports-app-linux
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o sports-app-linux
           tar czf ../sports-app-linux.tar.gz sports-app-linux
 
-      # 4. 上传二进制包和 favicon 到服务器
-      - name: 上传部署文件
+      # 4. 上传二进制包到 /root/backend
+      - name: 上传二进制包
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: |
-            sports-app-linux.tar.gz
-            backend/static/favicon.ico
+          source: "sports-app-linux.tar.gz"
           target: "/root/backend/"
 
-      # 5. 在远程解包、覆盖，并利用 systemd 完全托管
-      - name: 部署并重启 systemd 服务
+      # 5. 上传 favicon.ico 到 /root/backend
+      - name: 上传 favicon.ico
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "backend/static/favicon.ico"
+          target: "/root/backend/"
+
+      # 6. 部署并重启后端（setsid + nohup + disown）
+      - name: 部署并重启后端
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          # 保证足够执行时间
           timeout: "600s"
           command_timeout: "600s"
           script: |
             set -e
 
-            # 5.1 确保部署目录
+            # 确保目录存在
             mkdir -p /root/backend \
                      /www/wwwroot/redamancy/backend/static \
                      /www/wwwroot/redamancy/backend/logs
 
-            # 5.2 解包并替换二进制
+            # 解包 & 覆盖二进制
             tar xzf /root/backend/sports-app-linux.tar.gz -C /root/backend/
+            rm   /root/backend/sports-app-linux.tar.gz
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 5.3 部署 favicon
+            # 覆盖 favicon
             mv -f /root/backend/favicon.ico /www/wwwroot/redamancy/backend/static/favicon.ico
 
-            # 5.4 写入最新 .env
+            # 写入 .env（按需添加 DB 等）
             cat > /www/wwwroot/redamancy/backend/.env << 'EOF'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
             OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
             OSS_BUCKET=sports-app-images
-            # 如需数据库配置, 可继续添加:
-            # DB_HOST=${{ secrets.DB_HOST }}
-            # DB_USER=${{ secrets.DB_USER }}
-            # DB_PASS=${{ secrets.DB_PASS }}
-            # DB_NAME=${{ secrets.DB_NAME }}
             EOF
 
-            # 5.5 写入 systemd 单元（覆盖/新建）
-            cat > /etc/systemd/system/sports-app.service << 'EOF'
-            [Unit]
-            Description=Sports App Backend Service
-            After=network.target
+            # 停掉旧进程
+            pkill -f sports-app-linux || true
 
-            [Service]
-            User=root
-            WorkingDirectory=/www/wwwroot/redamancy/backend
-            EnvironmentFile=/www/wwwroot/redamancy/backend/.env
-            ExecStart=/www/wwwroot/redamancy/backend/sports-app-linux
-            Restart=on-failure
-            RestartSec=5
-
-            [Install]
-            WantedBy=multi-user.target
-            EOF
-
-            # 5.6 重载并启动服务
-            systemctl daemon-reload
-            systemctl enable --now sports-app.service
+            # 后台启动新进程，彻底脱离 SSH 会话
+            setsid nohup /www/wwwroot/redamancy/backend/sports-app-linux \
+              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null & disown
 
             exit 0
