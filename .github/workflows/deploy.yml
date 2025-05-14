@@ -68,10 +68,12 @@ jobs:
             OSS_BUCKET=sports-app-images
             EOT
 
-            # 重启后端进程
-            pkill -f sports-app-linux || true
-            nohup /www/wwwroot/redamancy/backend/sports-app-linux \
-              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null &
+            # 重新加载 systemd（如果你修改过 unit 文件）
+            sudo systemctl daemon-reload
+
+            # 重启由 systemd 管理的后端服务
+            sudo systemctl restart sports-app.service
 
             exit 0
           EOF
+
