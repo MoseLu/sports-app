@@ -45,10 +45,14 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, logsDB *gorm.DB) {
 	sportTypeController := controllers.NewSportTypeController(sportTypeService)
 	manifestController := controllers.NewManifestController(updateLogService)
 	updateLogController := controllers.NewUpdateLogController(updateLogService)
+	errorLogController := controllers.NewErrorLogController(db)
 
 	// API 路由组
 	api := r.Group("/api")
 	{
+		// 错误日志路由 - 公开访问
+		api.POST("/errors", errorLogController.CreateErrorLog)
+
 		// 不需要认证的路由
 		auth := api.Group("/auth")
 		{
