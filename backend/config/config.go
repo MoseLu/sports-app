@@ -69,16 +69,29 @@ var (
 // GetConfig 获取配置
 func GetConfig() *Config {
 	if cfg == nil {
+		// 检查是否是本地运行环境
+		isLocal := os.Getenv("LOCAL_DEV") == "true"
+		
+		// 根据环境设置数据库配置
+		var dbHost, logsDbHost string
+		if isLocal {
+			dbHost = "https://redamancy.com.cn"
+			logsDbHost = "https://redamancy.com.cn"
+		} else {
+			dbHost = getEnv("DB_HOST", "127.0.0.1")
+			logsDbHost = getEnv("LOGS_DB_HOST", "127.0.0.1")
+		}
+
 		cfg = &Config{
 			Database: DBConfig{
-				Host:     getEnv("DB_HOST", "127.0.0.1"),
+				Host:     dbHost,
 				Port:     getEnv("DB_PORT", "13307"),
 				User:     getEnv("DB_USER", "root"),
 				Password: getEnv("DB_PASSWORD", "123456"),
 				Name:     getEnv("DB_NAME", "sports_app"),
 			},
 			LogsDB: DBConfig{
-				Host:     getEnv("LOGS_DB_HOST", "127.0.0.1"),
+				Host:     logsDbHost,
 				Port:     getEnv("LOGS_DB_PORT", "13307"),
 				User:     getEnv("LOGS_DB_USER", "root"),
 				Password: getEnv("LOGS_DB_PASSWORD", "123456"),
