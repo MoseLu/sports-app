@@ -45,7 +45,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, logsDB *gorm.DB) {
 	sportTypeController := controllers.NewSportTypeController(sportTypeService)
 	manifestController := controllers.NewManifestController(updateLogService)
 	updateLogController := controllers.NewUpdateLogController(updateLogService)
-	errorLogController := controllers.NewErrorLogController(db)
+	errorLogController := controllers.NewErrorLogController(logsDB)
 
 	// API 路由组
 	api := r.Group("/api")
