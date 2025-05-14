@@ -71,15 +71,15 @@ func GetConfig() *Config {
 	if cfg == nil {
 		cfg = &Config{
 			Database: DBConfig{
-				Host:     getEnv("DB_HOST", "localhost"),
-				Port:     getEnv("DB_PORT", "3306"),
+				Host:     getEnv("DB_HOST", "127.0.0.1"),
+				Port:     getEnv("DB_PORT", "13307"),
 				User:     getEnv("DB_USER", "root"),
 				Password: getEnv("DB_PASSWORD", "123456"),
 				Name:     getEnv("DB_NAME", "sports_app"),
 			},
 			LogsDB: DBConfig{
-				Host:     getEnv("LOGS_DB_HOST", "localhost"),
-				Port:     getEnv("LOGS_DB_PORT", "3306"),
+				Host:     getEnv("LOGS_DB_HOST", "127.0.0.1"),
+				Port:     getEnv("LOGS_DB_PORT", "13307"),
 				User:     getEnv("LOGS_DB_USER", "root"),
 				Password: getEnv("LOGS_DB_PASSWORD", "123456"),
 				Name:     getEnv("LOGS_DB_NAME", "sports_app_logs"),
