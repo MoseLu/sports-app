@@ -59,7 +59,7 @@ jobs:
           source: "backend/static/favicon.ico"
           target: "/www/wwwroot/redamancy/backend/static/"
 
-      # 7. 部署并启动服务（pkill + nohup）
+      # 7. 部署并启动服务（setsid + nohup + disown）
       - name: 部署并启动服务
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -76,7 +76,7 @@ jobs:
             mv -f /root/backend/sports-app-linux /www/wwwroot/redamancy/backend/sports-app-linux
             chmod +x /www/wwwroot/redamancy/backend/sports-app-linux
 
-            # 写入 .env（根据需要可添加更多环境变量）
+            # 写入 .env
             cat > /www/wwwroot/redamancy/backend/.env << 'EOF'
             OSS_ACCESS_KEY_ID=${{ secrets.OSS_ACCESS_KEY_ID }}
             OSS_ACCESS_KEY_SECRET=${{ secrets.OSS_ACCESS_KEY_SECRET }}
@@ -90,9 +90,9 @@ jobs:
             # 杀掉旧进程
             pkill -f sports-app-linux || true
 
-            # 后台启动新进程，彻底脱离当前 shell
-            nohup /www/wwwroot/redamancy/backend/sports-app-linux \
-              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null &
+            # 后台启动新进程，完全脱离当前 SSH 会话
+            setsid nohup /www/wwwroot/redamancy/backend/sports-app-linux \
+              > /www/wwwroot/redamancy/backend/logs/app.log 2>&1 < /dev/null & disown
 
             # 脚本成功结束
             exit 0
