@@ -75,8 +75,8 @@ func GetConfig() *Config {
 		// 根据环境设置数据库配置
 		var dbHost, logsDbHost string
 		if isLocal {
-			dbHost = "https://redamancy.com.cn"
-			logsDbHost = "https://redamancy.com.cn"
+			dbHost = "https://www.redamancy.com.cn"
+			logsDbHost = "https://www.redamancy.com.cn"
 		} else {
 			dbHost = getEnv("DB_HOST", "127.0.0.1")
 			logsDbHost = getEnv("LOGS_DB_HOST", "127.0.0.1")
