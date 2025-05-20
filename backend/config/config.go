@@ -85,14 +85,14 @@ func GetConfig() *Config {
 		cfg = &Config{
 			Database: DBConfig{
 				Host:     dbHost,
-				Port:     getEnv("DB_PORT", "13307"),
+				Port:     getEnv("DB_PORT", "3306"),
 				User:     getEnv("DB_USER", "root"),
 				Password: getEnv("DB_PASSWORD", "123456"),
 				Name:     getEnv("DB_NAME", "sports_app"),
 			},
 			LogsDB: DBConfig{
 				Host:     logsDbHost,
-				Port:     getEnv("LOGS_DB_PORT", "13307"),
+				Port:     getEnv("LOGS_DB_PORT", "3306"),
 				User:     getEnv("LOGS_DB_USER", "root"),
 				Password: getEnv("LOGS_DB_PASSWORD", "123456"),
 				Name:     getEnv("LOGS_DB_NAME", "sports_app_logs"),

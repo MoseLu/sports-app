@@ -3,14 +3,14 @@ server:
 
 database:
   host: '127.0.0.1'
-  port: '13307'
+  port: '3306'
   user: 'root'
   password: '123456'
   name: 'sports_app'
 
 logs_database:
   host: '127.0.0.1'
-  port: '13307'
+  port: '3306'
   user: 'root'
   password: '123456'
   name: 'sports_app_logs'
